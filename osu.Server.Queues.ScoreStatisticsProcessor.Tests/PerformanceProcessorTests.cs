@@ -235,6 +235,38 @@ namespace osu.Server.Queues.ScoreStatisticsProcessor.Tests
         }
 
         [Fact]
+        public void CustomisedModsNotValidForPerformance()
+        {
+            var mods = new Mod[]
+            {
+                new OsuModDoubleTime { SpeedChange = { Value = 2.0 } },
+                new OsuModNightcore { SpeedChange = { Value = 2.0 } },
+                new OsuModHalfTime { SpeedChange = { Value = 0.5 } },
+                new OsuModDaycore { SpeedChange = { Value = 0.5 } },
+                new OsuModEasy { Retries = { Value = 8 } },
+                new OsuModHidden { OnlyFadeApproachCircles = { Value = true } },
+                new OsuModFlashlight { ComboBasedSize = { Value = false } },
+            };
+
+            foreach (var mod in mods)
+                Assert.False(ScorePerformanceProcessor.AllModsValidForPerformance(new SoloScoreInfo(), new[] { mod }), mod.GetType().ReadableName());
+        }
+
+        [Fact]
+        public void CustomisedModsValidForPerformance()
+        {
+            var mods = new Mod[]
+            {
+                new OsuModSuddenDeath { Restart = { Value = true } },
+                new OsuModPerfect { Restart = { Value = false } },
+                new OsuModMuted { EnableMetronome = { Value = false } }
+            };
+
+            foreach (var mod in mods)
+                Assert.True(ScorePerformanceProcessor.AllModsValidForPerformance(new SoloScoreInfo(), new[] { mod }), mod.GetType().ReadableName());
+        }
+
+        [Fact]
         public void ClassicAllowedOnLegacyScores()
         {
             Assert.True(ScorePerformanceProcessor.AllModsValidForPerformance(new SoloScoreInfo { LegacyScoreId = 1 }, new Mod[] { new OsuModClassic() }));
